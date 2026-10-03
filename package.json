@@ -37,6 +37,12 @@
 		"tokens"
 	],
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/JeffreyJYZ/opencode-context.git"
+	},
+	"homepage": "https://github.com/JeffreyJYZ/opencode-context#readme",
+	"bugs": "https://github.com/JeffreyJYZ/opencode-context/issues",
 	"publishConfig": {
 		"access": "public"
 	}

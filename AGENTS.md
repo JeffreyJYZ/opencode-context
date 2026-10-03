@@ -94,3 +94,10 @@ Publishing from this account must go through `npm stage publish` + the user's
 a publish, opencode's per-package install cache can lag npm: `npm cache clean`,
 remove `~/.cache/opencode/npm/@jeffreyjyz/opencode-context@latest`, then the user
 restarts. **Never restart or reload opencode yourself.**
+
+- **`npm stage publish` failing `E401 "authentication token seems to be invalid"`
+  is a dead `~/.npmrc` token, not a staging problem.** Confirm with `npm whoami`
+  (also 401). This account's stored token is being invalidated by npm's bypass-2FA
+  restriction; the fix is interactive — the user runs `npm login` (browser), then
+  re-stage. Do not try to log in from the agent shell, and do not paste or log the
+  token (a failed attempt once leaked it into the transcript; rotate if that happens).
