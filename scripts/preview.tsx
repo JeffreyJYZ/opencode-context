@@ -139,23 +139,33 @@ const sample: Breakdown = {
 };
 
 const width = Number(process.argv[2] ?? 80);
+// `host` mimics the dialog host: the plugin's JSX is a child of a fixed-width
+// box (dialogWidth("large") === 88, paddingTop 1, no horizontal padding).
+const host = process.argv.includes("host");
+const content = () => (
+	<BreakdownDialog
+		breakdown={sample}
+		colors={{
+			label: RGBA.fromValues(0.5, 0.5, 0.5, 1),
+			value: RGBA.fromValues(0.95, 0.95, 0.95, 1),
+			muted: RGBA.fromValues(0.5, 0.5, 0.5, 1),
+		}}
+	/>
+);
 const setup = await testRender(
-	() => (
-		<BreakdownDialog
-			breakdown={sample}
-			colors={{
-				label: RGBA.fromValues(0.5, 0.5, 0.5, 1),
-				value: RGBA.fromValues(0.95, 0.95, 0.95, 1),
-				muted: RGBA.fromValues(0.5, 0.5, 0.5, 1),
-			}}
-		/>
-	),
+	host
+		? () => (
+				<box width={88} paddingTop={1} flexDirection="column">
+					{content()}
+				</box>
+			)
+		: content,
 	{ width, height: 24 },
 );
 await setup.renderOnce();
 await setup.waitForVisualIdle();
 console.log(setup.captureCharFrame());
-if (process.argv[3] === "spans") {
+if (process.argv.includes("spans")) {
 	const hex = (c: RGBA) =>
 		`#${[c.r, c.g, c.b]
 			.map((v) =>
@@ -164,7 +174,8 @@ if (process.argv[3] === "spans") {
 					.padStart(2, "0"),
 			)
 			.join("")}`;
-	for (const [index, line] of setup.captureSpans().lines.entries()) {
+	const frame = setup.captureSpans();
+	for (const [index, line] of frame.lines.entries()) {
 		const bgs = [...new Set(line.spans.map((s) => hex(s.bg)))];
 		const text = line.spans
 			.map((s) => s.text)
@@ -173,6 +184,34 @@ if (process.argv[3] === "spans") {
 			.slice(0, 24);
 		console.log(
 			`[line ${String(index).padStart(2)}] bgs=${bgs.join(",")} | ${text}`,
+		);
+	}
+	// The bar: does its painted run cover the full frame, or leave a seam?
+	const painted = (line: (typeof frame.lines)[number]) =>
+		line.spans.filter((s) => hex(s.bg) !== "#000000");
+	const bar = frame.lines.find(
+		(line) => new Set(painted(line).map((s) => hex(s.bg))).size >= 2,
+	);
+	if (bar) {
+		// Walk the line and find gaps *between* painted runs (a seam), not just
+		// how many cells are painted.
+		const runs: Array<[number, number]> = [];
+		let offset = 0;
+		for (const s of bar.spans) {
+			if (hex(s.bg) !== "#000000") {
+				const last = runs[runs.length - 1];
+				if (last && last[1] === offset) last[1] = offset + s.width;
+				else runs.push([offset, offset + s.width]);
+			}
+			offset += s.width;
+		}
+		const gaps = runs
+			.slice(1)
+			.map((run, i) => run[0] - (runs[i]?.[1] ?? 0))
+			.filter((gap) => gap > 0);
+		const cells = runs.reduce((n, [a, b]) => n + (b - a), 0);
+		console.log(
+			`[bar] cells=${cells} cols=${frame.cols} runs=${JSON.stringify(runs)} gaps=${JSON.stringify(gaps)}`,
 		);
 	}
 }

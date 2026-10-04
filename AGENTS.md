@@ -19,6 +19,7 @@ src/capture.ts    cross-process sizes cache ($XDG_CACHE_HOME/opencode-context/<s
 src/dialog.tsx    the dialog JSX (flex layout, stacked bar, rows)
 src/format.ts     bytes / tokens / percent
 scripts/preview.tsx  headless frame preview: `bun run scripts/preview.tsx [width] [spans]`
+scripts/opentui-clip-space-bug.tsx  standalone upstream repro (see Traps)
 index.js, tui.js  root shims for local-directory plugin loading (see Traps)
 ```
 
@@ -91,7 +92,15 @@ index.js, tui.js  root shims for local-directory plugin loading (see Traps)
   `dialog.tsx` renders `label.replace(/ /g, "\u00a0")`; the render test
   normalises NBSP back to a space before asserting. A flat row list and a spacer
   box (instead of `flexGrow` on the label) did **not** fix it — only the NBSP did.
-  Confirm any future row-layout change with `bun run scripts/preview.tsx`.
+  **The trigger is clipping:** the stray glyph appears only when the test-render
+  frame is *shorter* than the content, and it is height-parity dependent — the
+  dialog reproduced at frame heights 20/22/24 but not 21/23, and not at all ≥25
+  (its content is ~24 rows). `testRender`'s fixed frame clips the content; the
+  **live dialog is content-sized and never clips**, which is why the real TUI
+  showed the labels correctly, so the NBSP is harmless insurance rather than a
+  live fix. Standalone deterministic repro: `bun run
+  scripts/opentui-clip-space-bug.tsx` (prints `BUG`/`ok` per frame height). Not
+  yet filed at `anomalyco/opentui`.
 
 ## Build & test
 
