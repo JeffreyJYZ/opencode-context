@@ -99,8 +99,9 @@ index.js, tui.js  root shims for local-directory plugin loading (see Traps)
   **live dialog is content-sized and never clips**, which is why the real TUI
   showed the labels correctly, so the NBSP is harmless insurance rather than a
   live fix. Standalone deterministic repro: `bun run
-  scripts/opentui-clip-space-bug.tsx` (prints `BUG`/`ok` per frame height). Not
-  yet filed at `anomalyco/opentui`.
+  scripts/opentui-clip-space-bug.tsx` (prints `BUG`/`ok` per frame height).
+  **Not filed, on purpose:** the live dialog is content-sized and never clips, so
+  this is a `testRender`-only artifact; the repro is kept as a curiosity.
 
 ## Build & test
 
