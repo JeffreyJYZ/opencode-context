@@ -16,8 +16,9 @@ src/tui.tsx       TUI half (`./tui`): the `/context` slash command + dialog
 src/breakdown.ts  pure: replayable messages -> buckets. The ONE classification point
 src/collect.ts    TUI collector: session.context + model limit + agent system + capture
 src/capture.ts    cross-process sizes cache ($XDG_CACHE_HOME/opencode-context/<session>.json)
-src/dialog.tsx    the dialog JSX (stacked bar, header, rows)
+src/dialog.tsx    the dialog JSX (flex layout, stacked bar, rows)
 src/format.ts     bytes / tokens / percent
+scripts/preview.tsx  headless frame preview: `bun run scripts/preview.tsx [width] [spans]`
 index.js, tui.js  root shims for local-directory plugin loading (see Traps)
 ```
 
@@ -71,6 +72,26 @@ index.js, tui.js  root shims for local-directory plugin loading (see Traps)
   not a plain `bun build`: plain JSX evaluates props at element creation and the
   panel freezes at mount. `@opentui/*` and `solid-js` stay external because the
   host rewrites the entry's imports to its own module instances.
+- **The dialog lays out with flexbox, not fixed-width strings.** Rows fill
+  `width="100%"`, the label is a `flexGrow` spacer, and size/percent are fixed
+  columns pushed right — a `padEnd`/`padStart` block (the first cut) floats or
+  squishes because the dialog's inner width is not known to the render. The bar
+  is a row of `flexGrow`-weighted boxes with `backgroundColor`, so it spans the
+  dialog; a repeated glyph run cannot.
+- **`captureCharFrame()` cannot show the bar's background colour** — the plain
+  frame renders it as blanks. Use `captureSpans()` (sum `span.width`, count
+  distinct `span.bg`) or `bun run scripts/preview.tsx <width> spans` to audit it;
+  `test/dialog-render.test.tsx` is the guard.
+- **An ASCII space inside a flex-row `<text>` can be painted/captured as a stray
+  character.** Deliberately broken down: a row whose label immediately follows a
+  bucket *with children* rendered `Thinking Blocks` as `ThinkingoBlocks` — the
+  space took a glyph out of the same string, and the glyph changed with the text
+  (`Think Blocks` → `ThinksBlocks`, two spaces → `on`). Replacing the label's
+  spaces with **U+00A0** lays out identically and paints correctly, which is why
+  `dialog.tsx` renders `label.replace(/ /g, "\u00a0")`; the render test
+  normalises NBSP back to a space before asserting. A flat row list and a spacer
+  box (instead of `flexGrow` on the label) did **not** fix it — only the NBSP did.
+  Confirm any future row-layout change with `bun run scripts/preview.tsx`.
 
 ## Build & test
 

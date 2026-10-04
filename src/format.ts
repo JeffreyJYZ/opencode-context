@@ -25,8 +25,10 @@ export function formatTokens(tokens: number): string {
 	return `${trim(tokens / 1000)}k`;
 }
 
-/** One decimal, matching the byte column. 0/0 -> "0%". */
+/** One decimal, so a sub-0.05% row reads "0.0%" instead of "0%"; a full row stays "100%". */
 export function formatPercent(part: number, whole: number): string {
-	if (whole <= 0) return "0%";
-	return `${trim((part / whole) * 100)}%`;
+	if (whole <= 0) return "0.0%";
+	const value = (part / whole) * 100;
+	if (value >= 99.95) return "100%";
+	return `${value.toFixed(1)}%`;
 }
