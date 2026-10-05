@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { SERVER_ID, TUI_ID } from "../src/ids";
-import serverPlugin, { TOOL_DESCRIPTION } from "../src/index";
+import { SERVER_ID, TUI_ID } from "../src/constants/ids";
+import { TOOL_DESCRIPTION } from "../src/constants/tool";
+import serverPlugin from "../src/index";
 import tuiPlugin from "../src/tui";
 
 type Claim = { append?: string; render: (input: never) => unknown };

@@ -11,7 +11,10 @@ import {
 	renderMarkdown,
 } from "./breakdown";
 import { readCapture, writeCapture } from "./capture";
-import { SERVER_ID } from "./ids";
+import { SERVER_ID } from "./constants/ids";
+import { TOOL_DESCRIPTION } from "./constants/tool";
+
+export { TOOL_DESCRIPTION };
 
 const encoder = new TextEncoder();
 const bytesOf = (value: string): number => encoder.encode(value).length;
@@ -23,9 +26,6 @@ function safeJson(value: unknown): string {
 		return "";
 	}
 }
-
-export const TOOL_DESCRIPTION =
-	"Show where this session's context window went: system prompt, tool definitions, thinking, tool inputs, tool outputs, and user/assistant messages, each with byte and estimated token sizes. Call this when asked why context is large or what is filling the window.";
 
 export const contextPlugin: PluginNs.Plugin = {
 	id: SERVER_ID,

@@ -18,6 +18,9 @@ src/collect.ts    TUI collector: session.context + model limit + agent system + 
 src/capture.ts    cross-process sizes cache ($XDG_CACHE_HOME/opencode-context/<session>.json)
 src/dialog.tsx    the dialog JSX (flex layout, stacked bar, rows)
 src/format.ts     bytes / tokens / percent
+src/constants/    module-scope data constants: ids.ts (plugin/command ids),
+                  dialog.ts (palette, column widths, row glyphs, child cap),
+                  tool.ts (context_breakdown tool description)
 scripts/preview.tsx  headless frame preview: `bun run scripts/preview.tsx [width] [spans]`
 scripts/opentui-clip-space-bug.tsx  standalone upstream repro (see Traps)
 index.js, tui.js  root shims for local-directory plugin loading (see Traps)

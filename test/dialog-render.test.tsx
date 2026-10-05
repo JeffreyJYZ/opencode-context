@@ -7,6 +7,12 @@ import { describe, expect, test } from "bun:test";
 import { RGBA } from "@opentui/core";
 import { testRender } from "@opentui/solid";
 import type { Breakdown, Bucket } from "../src/breakdown";
+import {
+	CHILD_INDENT,
+	CHILD_TICK,
+	MAX_CHILDREN,
+	TICK,
+} from "../src/constants/dialog";
 import { BreakdownDialog } from "../src/dialog";
 
 const colors = {
@@ -102,11 +108,11 @@ describe("rendered dialog", () => {
 		const setup = await render(breakdown);
 		// Labels render a non-breaking space (see dialog.tsx); normalise to test.
 		const text = setup.captureCharFrame().replace(/\u00a0/g, " ");
-		expect(text).toContain("▌ Tool Outputs");
-		expect(text).toContain("▏   read");
+		expect(text).toContain(`${TICK}Tool Outputs`);
+		expect(text).toContain(`${CHILD_TICK}${CHILD_INDENT}read`);
 		// The row after a bucket with children must keep its space intact
 		// (regression: it rendered as "ThinkingoBlocks").
-		expect(text).toContain("▌ Thinking Blocks");
+		expect(text).toContain(`${TICK}Thinking Blocks`);
 		// A column header makes the bytes/tokens columns unambiguous.
 		expect(text).toContain("tokens");
 		expect(text).toContain("size");
@@ -119,6 +125,7 @@ describe("rendered dialog", () => {
 	});
 
 	test("a long tool list rolls its tail into one row", async () => {
+		const toolCount = 12;
 		const many: Breakdown = {
 			...breakdown,
 			buckets: [
@@ -128,7 +135,7 @@ describe("rendered dialog", () => {
 					tone: "outputs",
 					bytes: 1200,
 					tokens: 300,
-					children: Array.from({ length: 12 }, (_, i) =>
+					children: Array.from({ length: toolCount }, (_, i) =>
 						child(`tool${i}`, 100, 25),
 					),
 				},
@@ -137,7 +144,7 @@ describe("rendered dialog", () => {
 		const setup = await render(many, 60, 24);
 		const text = setup.captureCharFrame().replace(/\u00a0/g, " ");
 		expect(text).toContain("tool0");
-		expect(text).toContain("+5 more tools");
-		expect(text).not.toContain("tool11");
+		expect(text).toContain(`+${toolCount - (MAX_CHILDREN - 1)} more tools`);
+		expect(text).not.toContain(`tool${toolCount - 1}`);
 	});
 });

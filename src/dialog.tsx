@@ -5,44 +5,22 @@
 // whatever width the host gives the dialog and the numeric columns stay aligned.
 // Colours are fixed so the bar reads the same on any theme; row text uses the
 // host theme's text tokens.
-import { RGBA } from "@opentui/core";
+import type { RGBA } from "@opentui/core";
 import type { JSX } from "@opentui/solid";
 import { For, Show } from "solid-js";
-import type { Breakdown, Bucket, Tone } from "./breakdown";
+import type { Breakdown, Bucket } from "./breakdown";
+import {
+	CHILD_INDENT,
+	CHILD_PALETTE,
+	CHILD_TICK,
+	MAX_CHILDREN,
+	PALETTE,
+	PCT_WIDTH,
+	SIZE_WIDTH,
+	TICK,
+	TOKENS_WIDTH,
+} from "./constants/dialog";
 import { formatBytes, formatPercent, formatTokens } from "./format";
-
-const PALETTE: Record<Tone, RGBA> = {
-	thinking: RGBA.fromValues(0.93, 0.69, 0.31, 1),
-	outputs: RGBA.fromValues(0.87, 0.45, 0.5, 1),
-	system: RGBA.fromValues(0.63, 0.67, 0.73, 1),
-	inputs: RGBA.fromValues(0.4, 0.72, 0.75, 1),
-	user: RGBA.fromValues(0.82, 0.67, 0.42, 1),
-	assistant: RGBA.fromValues(0.67, 0.56, 0.9, 1),
-	toolDefs: RGBA.fromValues(0.5, 0.62, 0.9, 1),
-	other: RGBA.fromValues(0.55, 0.58, 0.62, 1),
-};
-
-/** Distinct hues for tool children, so sub-tools read apart (a lighter step of
- * the parent hue does not — see AGENTS.md). */
-const CHILD_PALETTE: readonly RGBA[] = [
-	RGBA.fromValues(0.87, 0.45, 0.5, 1),
-	RGBA.fromValues(0.93, 0.69, 0.31, 1),
-	RGBA.fromValues(0.47, 0.75, 0.6, 1),
-	RGBA.fromValues(0.5, 0.62, 0.9, 1),
-	RGBA.fromValues(0.67, 0.56, 0.9, 1),
-	RGBA.fromValues(0.4, 0.72, 0.75, 1),
-	RGBA.fromValues(0.82, 0.67, 0.42, 1),
-	RGBA.fromValues(0.78, 0.55, 0.71, 1),
-];
-
-const TOKENS_WIDTH = 7;
-const SIZE_WIDTH = 8;
-const PCT_WIDTH = 6;
-const TICK = "▌ ";
-const CHILD_TICK = "▏ ";
-const CHILD_INDENT = "  ";
-/** Keep the dialog from growing past the tool count that fits, oldest shown. */
-const MAX_CHILDREN = 8;
 
 export interface DialogColors {
 	readonly label: RGBA;

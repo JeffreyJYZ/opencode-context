@@ -6,8 +6,8 @@
 import type { Plugin as Tui } from "@opencode/plugin/tui";
 import type { JSX } from "@opentui/solid";
 import { collectBreakdown } from "./collect";
+import { COMMAND_ID, SLASH_NAME, TUI_ID } from "./constants/ids";
 import { BreakdownDialog, type DialogColors } from "./dialog";
-import { COMMAND_ID, SLASH_NAME, TUI_ID } from "./ids";
 
 function dialogColors(ctx: Tui.Context): DialogColors {
 	const text = ctx.theme.text;
